@@ -32,6 +32,9 @@ public class Game extends JPanel implements KeyListener, Runnable {
     
     //player variables for movement
     private boolean onGround = false;
+    private boolean onBlock = false;
+    private boolean onBedrock = false;
+    private boolean onIce = false;
     private boolean holdingRight = false;
     private boolean holdingLeft = false;
     private double velocityX = 0;
@@ -216,17 +219,28 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		}
 		
 		// apply friction when in contact with ground or otherwise
+		System.out.println(velocityX);
+		if (onBedrock || onBlock) {
+			onGround = true;
+		} else {
+			onGround = false;
+		}
 		if (onGround) {
-			velocityX *= 0.85;
+			if (!(onIce)) {
+				System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+				velocityX *= 0.85;
+			} else {
+				velocityX *= 0.95;
+			}
 		} else {
 			velocityX *= 0.999;
 			velocityX += windStrength*.05;
 		}
 		
 	    // move right velocityX pixels (as long as velocityX is not zero)
-		if (velocityX != 0&&!(levelViewerMode)) playerX += (int) Math.round(velocityX);
+		if (velocityX != 0 && !(levelViewerMode)) playerX += (int) Math.round(velocityX);
 		
-	    // collision detection in general
+	    // collision detection for wall bounds
 	    if (playerX < 0) {
 	        playerX = 0;
 	        velocityX = 0; // Stop movement at the left wall
@@ -240,7 +254,9 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    if (playerY + height >= SCREEN_HEIGHT) {
 	        playerY = SCREEN_HEIGHT - height;
 	        velocityY = 0;
-	        onGround = true;
+	        onBedrock = true;
+	    } else {
+	    	onBedrock = false;
 	    }
 	    
 	    aimBallX = (int) Math.round(playerX) + (width / 2)-10 + (int) (aimRadius * Math.cos(Math.toRadians(aimAngle)));
@@ -258,6 +274,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	        	velocityX += Math.round(aimRadius * (Math.cos(Math.toRadians(aimAngle)))*0.1);
 	        	velocityY += Math.round(-aimRadius * (Math.sin(Math.toRadians(aimAngle)))*0.1);
 	        	onGround = false;
+	        	onIce = false;
 	        	shoot = false;
 	        	aimAngle = 90;
 	        	aimRadius = 50;
@@ -294,8 +311,15 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		            if (velocityY > 0) {
 		            	velocityY = 0;
 		            }
-		            onGround = true;   
-	    	    } if (minOverlap == overlapBottom) {
+		            onBlock = true;
+		            if (i.getIce()) {
+		            	System.out.println("GRaAAAAAAAAAA");
+		            	onIce = true;
+		            }
+	    	    } else {
+	    	    	onBlock = false;
+	    	    }
+	    	    if (minOverlap == overlapBottom) {
 	    	        playerY = bY + bHeight;
 	    	        if (velocityY < 0) {
 	    	        	velocityY = 0;
