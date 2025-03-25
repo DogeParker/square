@@ -62,8 +62,6 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	double windStrength = currentLevel.getWind();
 	boolean playerControlledWind;
 	double ROCofWind = 0;
-	int rnX;
-	int rnY;
 	private int dustSpawnCounter = 0; // counter to control dust spawn rate
 	
 	//should return 1 if OOB (out of bounds) from the right, 2 if OOB from the left, and return 0 if aimball doesn't go OOB
@@ -163,7 +161,6 @@ public class Game extends JPanel implements KeyListener, Runnable {
 
     @Override
     public void run() {
-    	//technically the main game loop
         while (true) {
             update();
             repaint();
@@ -174,11 +171,13 @@ public class Game extends JPanel implements KeyListener, Runnable {
             }
         }
     }
-
+    double temp;
 	public void update() {
 	    //dust! :)
 		windStrength = currentLevel.getWind();
 		if (windStrength != 0) {
+			int rnX;
+			int rnY;
 		    for (int i = 0; i < currentLevel.getDusts().size(); i++) {
 		        if (currentLevel.getDusts().get(i).getAlpha() == 0) {
 		            currentLevel.getDusts().remove(i);
@@ -218,13 +217,11 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		}
 		
 		// apply friction when in contact with ground or otherwise
-		System.out.println(playerX);
 		if (onGround) {
-			if (!(onIce)) {
-				System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-				velocityX *= 0.85;
-			} else {
+			if (onIce) {
 				velocityX *= 0.95;
+			} else {
+				velocityX *= 0.82;
 			}
 		} else {
 			velocityX *= 0.999;
@@ -232,9 +229,12 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		}
 		
 	    // move right velocityX pixels (as long as velocityX is not zero)
-		if (velocityX != 0 && !(levelViewerMode)) playerX += (int) Math.round(velocityX);
-		
-	    // collision detection for wall bounds
+		temp = playerX;
+		if (velocityX != 0&&!(levelViewerMode)) {
+			playerX += Math.round(velocityX*10.0)/10.0;
+		}
+		System.out.println(playerX-temp);
+	    // collision detection in general
 	    if (playerX < 0) {
 	        playerX = 0;
 	        velocityX = 0; // Stop movement at the left wall
@@ -262,11 +262,10 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    	angleAndRadiusOscillation();
 	    } 
 	    
-	    if (shoot) {
-	        	velocityX += Math.round(aimRadius * (Math.cos(Math.toRadians(aimAngle)))*0.1);
-	        	velocityY += Math.round(-aimRadius * (Math.sin(Math.toRadians(aimAngle)))*0.1);
+	    else if (shoot) {
+	        	velocityX += Math.round((aimRadius * (Math.cos(Math.toRadians(aimAngle)))*0.1)*10.0)/10.0;
+	        	velocityY += Math.round((-aimRadius * (Math.sin(Math.toRadians(aimAngle)))*0.1)*10.0)/10.0;
 	        	onGround = false;
-	        	onIce = false;
 	        	shoot = false;
 	        	aimAngle = 90;
 	        	aimRadius = 50;
@@ -278,7 +277,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	            aimBallPosInvalid = false;
 	        }
 	    // applying gravity
-	    if (!(levelViewerMode)) playerY += (int) Math.round(velocityY);
+	    if (!(levelViewerMode)) playerY += (double) Math.round(velocityY);
 	    // controls slowing down of jump and downwards falling
 	    velocityY += gravity;
 	    
@@ -287,7 +286,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    	int bX = i.getBlockX();
 	    	int bY = i.getBlockY();
 	    	int bWidth = i.getBlockWidth();
-	    	int bHeight = i.getBlockHeight();	    	
+	    	int bHeight = i.getBlockHeight();
+	    	
 	    	if (playerX < bX + bWidth && playerX + width > bX && playerY < bY + bHeight && playerY + height > bY) {
 	    	    double overlapLeft = (playerX + width) - bX; // difference between far right of player and far left of block
 	    	    double overlapRight = (bX + bWidth) - playerX; // difference between far right of block and far left of player
@@ -303,11 +303,15 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		            	velocityY = 0;
 		            }
 		            onGround = true;
-		            if (i.getIce()) {
+		            if (i.isIce()) {
 		            	onIce = true;
+		            } else {
+		            	onIce = false;
 		            }
-	    	    }
-	    	    if (minOverlap == overlapBottom) {
+	    	    } else {
+	    	    	onGround = false;
+	    	    	onIce = false;
+	    	    } if (minOverlap == overlapBottom) {
 	    	        playerY = bY + bHeight;
 	    	        if (velocityY < 0) {
 	    	        	velocityY = 0;
