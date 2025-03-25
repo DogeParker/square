@@ -32,6 +32,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
     
     //player variables for movement
     private boolean onGround = false;
+    private boolean onIce = false;
     private boolean holdingRight = false;
     private boolean holdingLeft = false;
     private double velocityX = 0;
@@ -61,8 +62,6 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	double windStrength = currentLevel.getWind();
 	boolean playerControlledWind;
 	double ROCofWind = 0;
-	int rnX;
-	int rnY;
 	private int dustSpawnCounter = 0; // counter to control dust spawn rate
 	
 	//should return 1 if OOB (out of bounds) from the right, 2 if OOB from the left, and return 0 if aimball doesn't go OOB
@@ -172,11 +171,13 @@ public class Game extends JPanel implements KeyListener, Runnable {
             }
         }
     }
-
+    double temp;
 	public void update() {
 	    //dust! :)
 		windStrength = currentLevel.getWind();
 		if (windStrength != 0) {
+			int rnX;
+			int rnY;
 		    for (int i = 0; i < currentLevel.getDusts().size(); i++) {
 		        if (currentLevel.getDusts().get(i).getAlpha() == 0) {
 		            currentLevel.getDusts().remove(i);
@@ -217,15 +218,22 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		
 		// apply friction when in contact with ground or otherwise
 		if (onGround) {
-			velocityX *= 0.85;
+			if (onIce) {
+				velocityX *= 0.95;
+			} else {
+				velocityX *= 0.82;
+			}
 		} else {
 			velocityX *= 0.999;
 			velocityX += windStrength*.05;
 		}
 		
 	    // move right velocityX pixels (as long as velocityX is not zero)
-		if (velocityX != 0&&!(levelViewerMode)) playerX += (int) Math.round(velocityX);
-		
+		temp = playerX;
+		if (velocityX != 0&&!(levelViewerMode)) {
+			playerX += Math.round(velocityX*10.0)/10.0;
+		}
+		System.out.println(playerX-temp);
 	    // collision detection in general
 	    if (playerX < 0) {
 	        playerX = 0;
@@ -254,9 +262,9 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    	angleAndRadiusOscillation();
 	    } 
 	    
-	    if (shoot) {
-	        	velocityX += Math.round(aimRadius * (Math.cos(Math.toRadians(aimAngle)))*0.1);
-	        	velocityY += Math.round(-aimRadius * (Math.sin(Math.toRadians(aimAngle)))*0.1);
+	    else if (shoot) {
+	        	velocityX += Math.round((aimRadius * (Math.cos(Math.toRadians(aimAngle)))*0.1)*10.0)/10.0;
+	        	velocityY += Math.round((-aimRadius * (Math.sin(Math.toRadians(aimAngle)))*0.1)*10.0)/10.0;
 	        	onGround = false;
 	        	shoot = false;
 	        	aimAngle = 90;
@@ -269,7 +277,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	            aimBallPosInvalid = false;
 	        }
 	    // applying gravity
-	    if (!(levelViewerMode)) playerY += (int) Math.round(velocityY);
+	    if (!(levelViewerMode)) playerY += (double) Math.round(velocityY);
 	    // controls slowing down of jump and downwards falling
 	    velocityY += gravity;
 	    
@@ -294,7 +302,15 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		            if (velocityY > 0) {
 		            	velocityY = 0;
 		            }
-		            onGround = true;   
+		            onGround = true;
+		            if (i.isIce()) {
+		            	onIce = true;
+		            } else {
+		            	onIce = false;
+		            }
+	    	    } else {
+	    	    	onGround = false;
+	    	    	onIce = false;
 	    	    } if (minOverlap == overlapBottom) {
 	    	        playerY = bY + bHeight;
 	    	        if (velocityY < 0) {

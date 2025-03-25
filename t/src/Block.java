@@ -45,13 +45,13 @@ public class Block {
         this.y = y;
         this.color = color;
     }
-    public Block(int width, int height, int x, int y, Color color, boolean isPortal, boolean isIce, boolean isBouncy) {
+    public Block(int width, int height, int x, int y, boolean isPortal, boolean isIce, boolean isBouncy) {
         this.impassable = false;
         this.width = width;
         this.height = height;
         this.x = x;
         this.y = y;
-        this.color = color;
+        this.color = new Color(0x6DBAE3);
         this.isIce = isIce;
         this.isPortal = isPortal;
         this.isBouncy = isBouncy;
@@ -77,6 +77,10 @@ public class Block {
     
     public int getBlockY() {
         return y;
+    }
+    
+    public boolean isIce() {
+    	return isIce;
     }
     
     public boolean isImpassable() {
