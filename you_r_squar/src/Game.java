@@ -348,7 +348,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         setBackground(new Color(0x2E2E2E));
-        levelCreator.getLevelAt(currentLevelIndex).drawLevel(g);
+        levelCreator.getLevelAt(currentLevelIndex).drawLevel(g,true);
         // draw aimBall when controlling angle or strength
         if (!(levelViewerMode)) {
 	        if ((aimMode||aimLocked)&&onGround) {

@@ -18,9 +18,11 @@ public class Level {
     }
     
     // draw everything in the level.. blocks and dust
-    public void drawLevel(Graphics g) {
-    	for (int i=0; i<blocks.size(); i++) {
-    		blocks.get(i).drawBlock(g);
+    public void drawLevel(Graphics g, boolean drawBlocks) {
+    	if (drawBlocks) {
+	    	for (int i=0; i<blocks.size(); i++) {
+	    		blocks.get(i).drawBlock(g);
+	    	}
     	}
     	for (int i=0; i<dusts.size(); i++) {
     		dusts.get(i).drawDust(g);
