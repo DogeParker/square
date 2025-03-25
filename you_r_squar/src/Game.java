@@ -32,8 +32,6 @@ public class Game extends JPanel implements KeyListener, Runnable {
     
     //player variables for movement
     private boolean onGround = false;
-    private boolean onBlock = false;
-    private boolean onBedrock = false;
     private boolean onIce = false;
     private boolean holdingRight = false;
     private boolean holdingLeft = false;
@@ -165,6 +163,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 
     @Override
     public void run() {
+    	//technically the main game loop
         while (true) {
             update();
             repaint();
@@ -219,12 +218,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		}
 		
 		// apply friction when in contact with ground or otherwise
-		System.out.println(velocityX);
-		if (onBedrock || onBlock) {
-			onGround = true;
-		} else {
-			onGround = false;
-		}
+		System.out.println(playerX);
 		if (onGround) {
 			if (!(onIce)) {
 				System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
@@ -254,9 +248,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    if (playerY + height >= SCREEN_HEIGHT) {
 	        playerY = SCREEN_HEIGHT - height;
 	        velocityY = 0;
-	        onBedrock = true;
-	    } else {
-	    	onBedrock = false;
+	        onGround = true;
 	    }
 	    
 	    aimBallX = (int) Math.round(playerX) + (width / 2)-10 + (int) (aimRadius * Math.cos(Math.toRadians(aimAngle)));
@@ -295,8 +287,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    	int bX = i.getBlockX();
 	    	int bY = i.getBlockY();
 	    	int bWidth = i.getBlockWidth();
-	    	int bHeight = i.getBlockHeight();
-	    	
+	    	int bHeight = i.getBlockHeight();	    	
 	    	if (playerX < bX + bWidth && playerX + width > bX && playerY < bY + bHeight && playerY + height > bY) {
 	    	    double overlapLeft = (playerX + width) - bX; // difference between far right of player and far left of block
 	    	    double overlapRight = (bX + bWidth) - playerX; // difference between far right of block and far left of player
@@ -311,13 +302,10 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		            if (velocityY > 0) {
 		            	velocityY = 0;
 		            }
-		            onBlock = true;
+		            onGround = true;
 		            if (i.getIce()) {
-		            	System.out.println("GRaAAAAAAAAAA");
 		            	onIce = true;
 		            }
-	    	    } else {
-	    	    	onBlock = false;
 	    	    }
 	    	    if (minOverlap == overlapBottom) {
 	    	        playerY = bY + bHeight;
