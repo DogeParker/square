@@ -261,7 +261,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    else if (onGround && aimMode || onGround && aimLocked) {
 	    	angleAndRadiusOscillation();
 	    } 
-	    
+	    //shoot player towards aimball
 	    else if (shoot) {
 	        	velocityX += Math.round((aimRadius * (Math.cos(Math.toRadians(aimAngle)))*0.1)*10.0)/10.0;
 	        	velocityY += Math.round((-aimRadius * (Math.sin(Math.toRadians(aimAngle)))*0.1)*10.0)/10.0;
@@ -275,9 +275,10 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	        		aimSpeed = 1;
 	        	}
 	            aimBallPosInvalid = false;
-	        }
+	    }
+	    
 	    // applying gravity
-	    if (!(levelViewerMode)) playerY += (double) Math.round(velocityY);
+	    if (!(levelViewerMode)) playerY += (double) velocityY;
 	    // controls slowing down of jump and downwards falling
 	    velocityY += gravity;
 	    
@@ -297,6 +298,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    	    // find smallest overlap
 	    	    double minOverlap = Math.min(Math.min(overlapLeft, overlapRight), Math.min(overlapTop, overlapBottom));
 	    	    
+	    	    //player on top of block
 	    	    if (minOverlap == overlapTop) {
 		            playerY = bY - height;
 		            if (velocityY > 0) {
@@ -311,7 +313,9 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    	    } else {
 	    	    	onGround = false;
 	    	    	onIce = false;
-	    	    } if (minOverlap == overlapBottom) {
+	    	    } 
+	    	    
+	    	    if (minOverlap == overlapBottom) {
 	    	        playerY = bY + bHeight;
 	    	        if (velocityY < 0) {
 	    	        	velocityY = 0;
