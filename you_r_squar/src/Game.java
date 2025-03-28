@@ -45,7 +45,6 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private boolean onGround = false;
     private boolean onIce = false;
     private boolean holdingRight = false;
-    private boolean holdingLeft = false;
     private double velocityX = 0;
     private double velocityY = 0;
     private double gravity = 0.3; //defining gravity
@@ -361,10 +360,10 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    }	
 	    
 	    // as long as not in aimMode or in aimLocked, if the left or right arrow keys are pressed, aimBall starts oscillating in that direction
-	    if (!(aimMode) && !(aimLocked) && holdingLeft) {
-	    	aimSpeed = 1;
-	    } else if (!(aimMode) && !(aimLocked) && holdingRight) {
+	    if (!(aimMode) && !(aimLocked) && holdingRight) {
 	    	aimSpeed = -1;
+	    } else if (!(aimMode) && !(aimLocked)) {
+	    	aimSpeed = 1;
 	    }
 	    
 	    //check for 
@@ -418,14 +417,6 @@ public class Game extends JPanel implements KeyListener, Runnable {
     	    repaint();
     	}
     	
-    	if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-    		holdingLeft = true;
-    		if (playerControlledWind) {
-        		ROCofWind = -0.2;
-        		windStrength += ROCofWind;	
-    		}
-    	}
-    	
     	if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
     		holdingRight = true;
     		if (playerControlledWind) {
@@ -442,11 +433,6 @@ public class Game extends JPanel implements KeyListener, Runnable {
         	aimLocked = true;
         	aimMode = false;
         }
-        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-    		holdingLeft = false;
-    		if (levelViewerMode&&currentLevelIndex>0) currentLevelIndex--;
-    	}
-    	
     	if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
     		holdingRight = false;
     		if (levelViewerMode&&currentLevelIndex<levelCreator.getLevels().size()-1) currentLevelIndex++;
