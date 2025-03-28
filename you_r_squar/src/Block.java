@@ -28,24 +28,14 @@ public class Block {
         this.x = x;
         this.y = y;
         this.color = new Color(0x4B4B4B);
-        isIce = false;
-        isBouncy = false;
-        isPortal = false;
     }
-    public Block(int width, int height, int x, int y, boolean isIce, boolean isPortal, boolean isBouncy) {
+    public Block(int width, int height, int x, int y, Color color) {
         this.impassable = true;
         this.width = width;
         this.height = height;
         this.x = x;
         this.y = y;
-        this.isIce = isIce;
-        this.isBouncy = isBouncy;
-        this.isPortal = isPortal;
-        if (this.isIce) {
-        	this.color = new Color(0x00004B);
-        } else {
-        	this.color = new Color(0x4B4B4B);
-        }
+        this.color = color;
     }
     public Block(int width, int height, int x, int y, Color color, boolean imp) {
         this.impassable = imp;
@@ -55,13 +45,13 @@ public class Block {
         this.y = y;
         this.color = color;
     }
-    public Block(int width, int height, int x, int y, Color color, boolean isIce, boolean isBouncy, boolean isPortal) {
+    public Block(int width, int height, int x, int y, boolean isPortal, boolean isIce, boolean isBouncy) {
         this.impassable = false;
         this.width = width;
         this.height = height;
         this.x = x;
         this.y = y;
-        this.color = color;
+        this.color = new Color(0x6DBAE3);
         this.isIce = isIce;
         this.isPortal = isPortal;
         this.isBouncy = isBouncy;
@@ -89,16 +79,8 @@ public class Block {
         return y;
     }
     
-    public boolean getIce() {
+    public boolean isIce() {
     	return isIce;
-    }
-    
-    public boolean getBouncy() { 
-    	return isBouncy;
-    }
-    
-    public boolean getPortal() {
-    	return isPortal;
     }
     
     public boolean isImpassable() {
