@@ -16,7 +16,7 @@ public class LevelCreator {
 		levelArray.add(level1);
 		
 		Level level2 = new Level(0);
-		level2.addBlock(new Block(200, 50, 500, 150));
+		level2.addBlock(new Block(200, 200, 500, 150));
 		level2.addBlock(new Block(200, 50, 50, 300));
 		level2.addBlock(new Block(200, 50, 300, 500));
 		levelArray.add(level2);
