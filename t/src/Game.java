@@ -5,15 +5,26 @@ import java.awt.event.KeyListener;
 
 /*
  * Level mechanics
- * 	-Ice --- reduce friction while on blocks with ice flag (light blue)
- * 	-DONE- Wind --- subtract (or add) velocityX by some value, making it clear to the player which direction the wind is blowing? (gonna be hard to make it clear)
+ * 	-DONE - Ice --- reduce friction while on blocks with ice flag (light blue)
+ * 	-DONE - Wind --- subtract (or add) velocityX by some value, making it clear to the player which direction the wind is blowing? (gonna be hard to make it clear)
  *	-........ control wind with arrow keys for added controls complexity?
  * 	-Portals --- make blocks with portal flag teleport the player to another portal, different colors maybe? (blue - orange)
  * 	-Bouncy --- (lime)
  * 	-Make player invisible (or maybe just harder to see) when passing through certain passable blocks
+ *  -Things i dont like:
+ *  	FIXED - bounce and slime work seperately but not combined, bounce/ice has no hor. friction at all
+ *  	was at one point a weird aimball bug where it could glitch into the screen barrier :/
+ *  	some areas that are intended to be unskippable... are skippable :/
+ *  	i feel like the code is grossly unoptimized, so i should reeealy do a runthrough of every check occuring in main update loop, and see if its really neccesary
+ *  	the aimball does not consistently move left without player intervention... thats a bug for sure
+ *  	FIXED... unfixed, was not bug, was 100% needed for code to run properly - when on a block, velocityY oscillates between 0 and 0.3 :/
+ * 		FIXED - sometimes velocityY and i think velocityX are reset when changing levels huh?
  */
 
 public class Game extends JPanel implements KeyListener, Runnable {
+	
+	private boolean funMode = false;
+	
 	private boolean levelViewerMode = false;
 	private LevelCreator levelCreator = new LevelCreator();
 	private int currentLevelIndex = 0;
@@ -204,6 +215,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		        dustSpawnCounter = 0;
 		    }
 		}
+		//change level check
 		if (changeLevelUp) {
 			playerY = SCREEN_HEIGHT-height-1;
 			changeLevelUp = false;
@@ -211,6 +223,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 			playerY = 1;
 			changeLevelDown = false;
 		}
+		
 		// prevents unnecessary calculations on velocityX (ie slowing hor. movement down to 0.0000000000000001 and beyond is superfluous)
 		if (-0.001<velocityX && velocityX<0.001) {
 			velocityX = 0;
@@ -229,12 +242,11 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		}
 		
 	    // move right velocityX pixels (as long as velocityX is not zero)
-		temp = playerX;
 		if (velocityX != 0&&!(levelViewerMode)) {
 			playerX += Math.round(velocityX*10.0)/10.0;
 		}
-		System.out.println(playerX-temp);
-	    // collision detection in general
+		
+		// collision detection in general
 	    if (playerX < 0) {
 	        playerX = 0;
 	        velocityX = 0; // Stop movement at the left wall
@@ -248,7 +260,9 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    if (playerY + height >= SCREEN_HEIGHT) {
 	        playerY = SCREEN_HEIGHT - height;
 	        velocityY = 0;
-	        onGround = true;
+	        if (currentLevelIndex == 0) {
+	        	onGround = true;
+	        }
 	    }
 	    
 	    aimBallX = (int) Math.round(playerX) + (width / 2)-10 + (int) (aimRadius * Math.cos(Math.toRadians(aimAngle)));
@@ -260,7 +274,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    } //main aiming loop
 	    else if (onGround && aimMode || onGround && aimLocked) {
 	    	angleAndRadiusOscillation();
-	    } 
+	    }
+	    
 	    //shoot player towards aimball
 	    else if (shoot) {
 	        	velocityX += Math.round((aimRadius * (Math.cos(Math.toRadians(aimAngle)))*0.1)*10.0)/10.0;
@@ -280,6 +295,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    // applying gravity
 	    if (!(levelViewerMode)) playerY += (double) velocityY;
 	    // controls slowing down of jump and downwards falling
+	    // wait blud was this just happening regardless of onGround flag what the sigma???
+	    // wait bub ur stupid this is the only thing keeping player from looney tunes ahh hahahahooeying onto an invisible platform, bc it needs top collision to detect if its still on a block :(
 	    velocityY += gravity;
 	    
 	    //collision detection with blocks
@@ -288,7 +305,6 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    	int bY = i.getBlockY();
 	    	int bWidth = i.getBlockWidth();
 	    	int bHeight = i.getBlockHeight();
-	    	
 	    	if (playerX < bX + bWidth && playerX + width > bX && playerY < bY + bHeight && playerY + height > bY) {
 	    	    double overlapLeft = (playerX + width) - bX; // difference between far right of player and far left of block
 	    	    double overlapRight = (bX + bWidth) - playerX; // difference between far right of block and far left of player
@@ -299,12 +315,25 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    	    double minOverlap = Math.min(Math.min(overlapLeft, overlapRight), Math.min(overlapTop, overlapBottom));
 	    	    
 	    	    //player on top of block
+	    	    // holup i think that it only runs overlap once b/c it was previously constantly gett
 	    	    if (minOverlap == overlapTop) {
 		            playerY = bY - height;
-		            if (velocityY > 0) {
-		            	velocityY = 0;
-		            }
 		            onGround = true;
+		            if (velocityY > 0) {
+		            	//check for bouncy block
+		            	if (i.isBouncy()) {
+		            		onGround = false;
+		            		if (Math.abs(velocityY)<1.5) {
+		            			velocityY = 0;
+		            			onGround = true;
+		            		} else {
+		            			velocityY = -velocityY*0.3;
+		            		}
+		            	} else {
+		            		velocityY = 0;
+		            	}
+		            }
+		            //check for ice block
 		            if (i.isIce()) {
 		            	onIce = true;
 		            } else {
@@ -313,7 +342,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    	    } else {
 	    	    	onGround = false;
 	    	    	onIce = false;
-	    	    } 
+	    	    }
+	    	    
 	    	    
 	    	    if (minOverlap == overlapBottom) {
 	    	        playerY = bY + bHeight;
@@ -330,13 +360,14 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    	}
 	    }	
 	    
-	    
 	    // as long as not in aimMode or in aimLocked, if the left or right arrow keys are pressed, aimBall starts oscillating in that direction
 	    if (!(aimMode) && !(aimLocked) && holdingLeft) {
 	    	aimSpeed = 1;
 	    } else if (!(aimMode) && !(aimLocked) && holdingRight) {
 	    	aimSpeed = -1;
 	    }
+	    
+	    //check for 
 	    if (playerY<=-height) {
 			currentLevelIndex++;
 			currentLevel = levelCreator.getLevelAt(currentLevelIndex);
@@ -346,6 +377,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 			currentLevel = levelCreator.getLevelAt(currentLevelIndex);
 			changeLevelDown = true;
 		}
+		System.out.println(velocityX);
 	}
     
     @Override

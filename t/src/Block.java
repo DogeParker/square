@@ -37,15 +37,28 @@ public class Block {
         this.y = y;
         this.color = color;
     }
-    public Block(int width, int height, int x, int y, Color color, boolean imp) {
-        this.impassable = imp;
+    public Block(int width, int height, int x, int y, boolean isIce, boolean isBouncy) {
+        this.impassable = false;
         this.width = width;
         this.height = height;
         this.x = x;
         this.y = y;
-        this.color = color;
+        if (isIce) {
+        	this.color = new Color(0x6DBAE3);
+        } else if (isBouncy) {
+        	this.color = new Color(0x3BF57C);
+        }
+        this.isBouncy = isBouncy;
+        this.isIce = isIce;
+        this.isPortal = false;
     }
-    public Block(int width, int height, int x, int y, boolean isPortal, boolean isIce, boolean isBouncy) {
+    
+    /* smooth portals would be cooler but imma kms if i am bothered to figure out the number of things i would have to change
+     * 
+     * dual rendering two seperate rects to represent each half of the player
+     * dual rendering two seperate aimballs in case it goes in
+     * 
+     * public Block(int width, int height, int x, int y, boolean isPortal, ) {
         this.impassable = false;
         this.width = width;
         this.height = height;
@@ -53,9 +66,8 @@ public class Block {
         this.y = y;
         this.color = new Color(0x6DBAE3);
         this.isIce = isIce;
-        this.isPortal = isPortal;
         this.isBouncy = isBouncy;
-    }
+    } */ 
     
     public void drawBlock(Graphics g) {
         g.setColor(color);
@@ -81,6 +93,10 @@ public class Block {
     
     public boolean isIce() {
     	return isIce;
+    }
+    
+    public boolean isBouncy() {
+    	return isBouncy;
     }
     
     public boolean isImpassable() {
