@@ -8,6 +8,14 @@ public class LevelCreator {
 		
 		//width, height, x, y
 		
+		/*MTL mechanicTestLevel
+		Level MTL = new Level(0);
+		MTL.addBlock(new Block(500, 500, 400, 300));
+		MTL.addBlock(new Block(300, 200, 150, 500));
+		MTL.addBlock(new Block(300, 400, 650, 100));
+		levelArray.add(MTL);
+		*/
+		
 		//level #1 creation
 		Level level1 = new Level(0);
 		level1.addBlock(new Block(500, 500, 400, 300));

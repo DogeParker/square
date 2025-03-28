@@ -8,7 +8,7 @@ import java.awt.event.KeyListener;
  * 	-DONE - Ice --- reduce friction while on blocks with ice flag (light blue)
  * 	-DONE - Wind --- subtract (or add) velocityX by some value, making it clear to the player which direction the wind is blowing? (gonna be hard to make it clear)
  *	-........ control wind with arrow keys for added controls complexity?
- * 	-Portals --- make blocks with portal flag teleport the player to another portal, different colors maybe? (blue - orange)
+ * 	-Portals --- SMOOTH_PORTALS!1!1!! make blocks with portal flag teleport the player to another portal, different colors maybe? (blue - orange)
  * 	-Bouncy --- (lime)
  * 	-Make player invisible (or maybe just harder to see) when passing through certain passable blocks
  *  -Things i dont like:
@@ -48,8 +48,6 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private double velocityX = 0;
     private double velocityY = 0;
     private double gravity = 0.3; //defining gravity
-    /*private double friction = 0.045; // friction in air
-    private double gFriction = 0.7; // friction when on ground*/
     
     //aimBall variables
     private boolean aimMode = false; // true when controlling aimBall angle
@@ -366,7 +364,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    	aimSpeed = 1;
 	    }
 	    
-	    //check for 
+	    //check for level change
 	    if (playerY<=-height) {
 			currentLevelIndex++;
 			currentLevel = levelCreator.getLevelAt(currentLevelIndex);
