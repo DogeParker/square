@@ -74,7 +74,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	
 	//for portals
 	private boolean inPortal = false;
-	int outieXPortal;
+	int otherXPortal;
 	
 	//should return 1 if OOB (out of bounds) from the right, 2 if OOB from the left, and return 0 if aimball doesn't go OOB
     public int checkAimOutOfBounds() {
@@ -165,22 +165,26 @@ public class Game extends JPanel implements KeyListener, Runnable {
     }
     
     public double percentPlayerInPortal() {
+    	double overlap = 0;
     	for (Portal i: currentLevel.getPortals()) {
 	    	int bX = i.getX1();
 	    	int bY = i.getY1();
+	    	int b2X = i.getX2();
+	    	int b2Y = i.getY2();
 	    	int bWidth = i.getWidth();
 	    	int bHeight = i.getHeight();
+	    	otherXPortal = i.getX2()+i.getWidth();
 	    	if (playerX < bX + bWidth && playerX + width > bX && playerY < bY + bHeight && playerY + height > bY) {
-	    		inPortal = true;
+	    		overlap = (playerX + width) - bX;
 	    		break;
-	    	} else {
+	    	} else if (playerX < b2X + bWidth && playerX + width > b2X && playerY < b2Y + bHeight && playerY + height > b2Y) {
+	    		overlap = (b2X + bWidth) - playerX;
+    			break;
+    		} else {
 	    		inPortal = false;
-	    	}
-	    	double overlap = (playerX + width) - bX;
-	    	outieXPortal = i.getX2()+i.getWidth();
-	    	return overlap/(double)width;
+    		}
     	}
-    	return -1;
+    	return overlap/width;
     }
     
     public Game() { // game loop (no clue)
@@ -382,12 +386,17 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    for (Portal i: currentLevel.getPortals()) {
 	    	int bX = i.getX1();
 	    	int bY = i.getY1();
+	    	int b2X = i.getX2();
+	    	int b2Y = i.getY2();
 	    	int bWidth = i.getWidth();
 	    	int bHeight = i.getHeight();
 	    	if (playerX < bX + bWidth && playerX + width > bX && playerY < bY + bHeight && playerY + height > bY) {
 	    		inPortal = true;
 	    		break;
-	    	} else {
+	    	} else if (playerX < b2X + bWidth && playerX + width > b2X && playerY < b2Y + bHeight && playerY + height > b2Y) {
+	    		inPortal = true;
+    			break;
+    		} else {
 	    		inPortal = false;
 	    	}
 	    }	
@@ -409,7 +418,6 @@ public class Game extends JPanel implements KeyListener, Runnable {
 			currentLevel = levelCreator.getLevelAt(currentLevelIndex);
 			changeLevelDown = true;
 		}
-		System.out.println(velocityX);
 	}
     
     @Override
@@ -428,9 +436,12 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	        if (!(inPortal)) {
 	        	g.fillRect((int) Math.round(playerX), (int) Math.round(playerY), width, height);
 	        } else {
-	        	
-	        	g.fillRect((int) Math.round(playerX), (int) Math.round(playerY), (int) percentPlayerInPortal()*width, height);
-	        	g.fillRect((int) outieXPortal, (int) Math.round(playerY), (int) (1-percentPlayerInPortal())*width, height);
+	        	if (percentPlayerInPortal() < 1) {
+	        		g.fillRect((int) Math.round(playerX), (int) Math.round(playerY), (int) Math.round((1-percentPlayerInPortal())*width), height);
+	        		g.fillRect((int) otherXPortal, (int) Math.round(playerY), (int) Math.round((percentPlayerInPortal())*width), height);
+	        	} else {
+	        		playerX = otherXPortal;
+	        	}
 	        }
         }
     }
@@ -478,8 +489,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
     	}
     }
 
-    /*@Override
-    public void keyTyped(KeyEvent e) {} // no clue why this is here, if its april and the game still works remove this crap */
+    @Override
+    public void keyTyped(KeyEvent e) {} // no clue why this is here
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("you are squar");
