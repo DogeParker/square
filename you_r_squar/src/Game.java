@@ -36,7 +36,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private final int SCREEN_HEIGHT = 600; // window height
     
     //hardcoded player values
-    private double playerX = 50; // player x position ... default 50
+    private double playerX = 400; // player x position ... default 50
     private double playerY = 300; // player y position ... default 300
     private int width = 50; // player width
     private int height = 50; // player height
@@ -61,16 +61,20 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private double aimSpeed = 1;
     private boolean shoot = false; // true for ~1 frame after pressing space to assign y and x velocities
 
-    int upperBound; //upper bound for aim controls
-	int lowerBound; //lower bound for aim controls
-	int increment; //what is increasing during update (distance from player or radius around player)
+    int upperBound; // upper bound for aim controls
+	int lowerBound; // lower bound for aim controls
+	int increment; // what is increasing during update (distance from player or radius around player)
 	int outerAimBallBounds; // used to get the position at which aimball hits bounds and assign upper/lower bounds to that
     
-	// for wind
+	//for wind
 	double windStrength = currentLevel.getWind();
 	boolean playerControlledWind;
 	double ROCofWind = 0;
 	private int dustSpawnCounter = 0; // counter to control dust spawn rate
+	
+	//for portals
+	private boolean inPortal = false;
+	int outieXPortal;
 	
 	//should return 1 if OOB (out of bounds) from the right, 2 if OOB from the left, and return 0 if aimball doesn't go OOB
     public int checkAimOutOfBounds() {
@@ -158,6 +162,25 @@ public class Game extends JPanel implements KeyListener, Runnable {
     	} else {
     		aimRadius += aimSpeed;
     	}
+    }
+    
+    public double percentPlayerInPortal() {
+    	for (Portal i: currentLevel.getPortals()) {
+	    	int bX = i.getX1();
+	    	int bY = i.getY1();
+	    	int bWidth = i.getWidth();
+	    	int bHeight = i.getHeight();
+	    	if (playerX < bX + bWidth && playerX + width > bX && playerY < bY + bHeight && playerY + height > bY) {
+	    		inPortal = true;
+	    		break;
+	    	} else {
+	    		inPortal = false;
+	    	}
+	    	double overlap = (playerX + width) - bX;
+	    	outieXPortal = i.getX2()+i.getWidth();
+	    	return overlap/(double)width;
+    	}
+    	return -1;
     }
     
     public Game() { // game loop (no clue)
@@ -356,6 +379,18 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	    	    }
 	    	}
 	    }	
+	    for (Portal i: currentLevel.getPortals()) {
+	    	int bX = i.getX1();
+	    	int bY = i.getY1();
+	    	int bWidth = i.getWidth();
+	    	int bHeight = i.getHeight();
+	    	if (playerX < bX + bWidth && playerX + width > bX && playerY < bY + bHeight && playerY + height > bY) {
+	    		inPortal = true;
+	    		break;
+	    	} else {
+	    		inPortal = false;
+	    	}
+	    }	
 	    
 	    // as long as not in aimMode or in aimLocked, if the left or right arrow keys are pressed, aimBall starts oscillating in that direction
 	    if (!(aimMode) && !(aimLocked) && holdingRight) {
@@ -390,7 +425,13 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	        }
 	        // draw player
 	        g.setColor(new Color(0xD72638));
-	        g.fillRect((int) Math.round(playerX), (int) Math.round(playerY), width, height);
+	        if (!(inPortal)) {
+	        	g.fillRect((int) Math.round(playerX), (int) Math.round(playerY), width, height);
+	        } else {
+	        	
+	        	g.fillRect((int) Math.round(playerX), (int) Math.round(playerY), (int) percentPlayerInPortal()*width, height);
+	        	g.fillRect((int) outieXPortal, (int) Math.round(playerY), (int) (1-percentPlayerInPortal())*width, height);
+	        }
         }
     }
 
@@ -437,8 +478,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
     	}
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {} // no clue
+    /*@Override
+    public void keyTyped(KeyEvent e) {} // no clue why this is here, if its april and the game still works remove this crap */
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("you are squar");

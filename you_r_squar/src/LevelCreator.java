@@ -8,13 +8,10 @@ public class LevelCreator {
 		
 		//width, height, x, y
 		
-		/*MTL mechanicTestLevel
+		//MTL mechanicTestLevel
 		Level MTL = new Level(0);
-		MTL.addBlock(new Block(500, 500, 400, 300));
-		MTL.addBlock(new Block(300, 200, 150, 500));
-		MTL.addBlock(new Block(300, 400, 650, 100));
+		MTL.addPortalSet(new Portal(500,450,200,450,50,150));
 		levelArray.add(MTL);
-		*/
 		
 		//level #1 creation
 		Level level1 = new Level(0);
@@ -24,13 +21,13 @@ public class LevelCreator {
 		levelArray.add(level1);
 		
 		Level level2 = new Level(0);
-		level2.addBlock(new Block(200, 200, 500, 150));
+		level2.addBlock(new Block(500, 50, 500, 150));
 		level2.addBlock(new Block(200, 50, 50, 300));
 		level2.addBlock(new Block(200, 50, 300, 500));
 		levelArray.add(level2);
 		
 		//level #2 creation
-		Level level3 = new Level(2);
+		Level level3 = new Level(1.75);
 		level3.addBlock(new Block(50, 50, 350, 250));
 		level3.addBlock(new Block(50, 400, 50, 0));
 		level3.addBlock(new Block(50, 200, 750, 0));
@@ -40,7 +37,7 @@ public class LevelCreator {
 		levelArray.add(level3);
 		
 		//level #3 creation
-		Level level4 = new Level(-2);
+		Level level4 = new Level(-1.75);
 		level4.addBlock(new Block(50, 400, 50, 500));
 		level4.addBlock(new Block(100, 50, 50, 500));
 		level4.addBlock(new Block(50, 800, 750, -50));

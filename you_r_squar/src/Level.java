@@ -9,11 +9,13 @@ public class Level {
     // A helper inner class to tie a Block to its position
     private ArrayList<Dust> dusts;
     private ArrayList<Block> blocks;
+    private ArrayList<Portal> portals;
     private double windStrength;
     
     public Level(double wind) {
         dusts = new ArrayList<>();
         blocks = new ArrayList<>();
+        portals = new ArrayList<>();
         windStrength = wind;
     }
     
@@ -24,6 +26,9 @@ public class Level {
         }
         for (Dust b : dusts) {
             b.drawDust(g);
+        }
+        for (Portal b : portals) {
+        	b.drawPortalSet(g);
         }
     }
     //getter methods
@@ -39,6 +44,10 @@ public class Level {
         return dusts;
     }
     
+    public ArrayList<Portal> getPortals() {
+        return portals;
+    }
+    
     public double getWind() {
     	return windStrength;
     }
@@ -49,5 +58,9 @@ public class Level {
     
     public void addBlock(Block b) {
     	blocks.add(b);
+    }
+    
+    public void addPortalSet(Portal p) {
+    	portals.add(p);
     }
 }
